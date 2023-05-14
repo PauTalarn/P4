@@ -1,6 +1,6 @@
 #! /usr/bin/python3 -u
 
-import struct
+import struct 
 
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
