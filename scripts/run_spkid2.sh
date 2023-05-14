@@ -17,6 +17,7 @@ set -o pipefail
 # - name_exp: name of the experiment
 # - db_devel: directory of the speecon database used during development
 # - db_test:  directory of the database used in the final test
+# \DONE
 lists=lists
 w=work
 name_exp=one
@@ -34,14 +35,13 @@ FINAL_VERIF=$w/verif_test.log
 # temporal para almacenar este resultado intermedio
 TEMP_VERIF=$w/temp_${FEAT}_${name_exp}.log
 
-#ULL; molt important, creem paràmetres per entrenar correctament la GMM
+
+#Parametros para entrenar GMM
 TO_init_method=1         #-i init\tInitialization method: 0=random, 1=VQ, 2=EM split (def. 0)   
 TO_LogProb_th_fin=1.e-6  #-T thr\tLogProbability threshold of final EM iterations (def. " << DEF_THR << ")
 TO_Num_it_fin=60        #-N ite\tNumber of final iterations of EM (def. " << DEF_ITERATIONS << ")
 TO_nmix=20               #-m mix\tNumber of mixtures (def. " << DEF_NMIXTURES << ")
 
-#Ho guardem a train_options
-#Ens servirà línea 153 
 TRAIN_OPTS="-i $TO_init_method -T $TO_LogProb_th_fin -N $TO_Num_it_fin -m $TO_nmix"
 # ------------------------
 # Usage
@@ -84,20 +84,17 @@ fi
 # \TODO
 # Create your own features with the name compute_$FEAT(), where $FEAT is the name of the feature.
 # - Select (or change) different features, options, etc. Make you best choice and try several options.
-# \DONE rule implemented
+# \DONE
 
- compute_lp() {
-     db=$1
-     shift
-     for filename in $(sort $*); do
-         mkdir -p `dirname $w/$FEAT/$filename.$FEAT`
-         EXEC="wav2lp 8 $db/$filename.wav $w/$FEAT/$filename.$FEAT"
-         echo $EXEC && $EXEC || exit 1
-     done
- }
-
-
-#Creem el compute_lpcc i el compute_mfpcc
+compute_lp() {
+    db=$1
+    shift
+    for filename in $(sort $*); do
+        mkdir -p `dirname $w/$FEAT/$filename.$FEAT`
+        EXEC="wav2lp 8 $db/$filename.wav $w/$FEAT/$filename.$FEAT"
+        echo $EXEC && $EXEC || exit 1
+    done
+}
 
 compute_lpcc(){
     db=$1
@@ -110,16 +107,14 @@ compute_lpcc(){
 }
 
 compute_mfcc(){
-     db=$1
-     shift
-     for filename in $(sort $*); do
-         mkdir -p `dirname $w/$FEAT/$filename.$FEAT`
-         EXEC="wav2mfcc 20 30 8 $db/$filename.wav $w/$FEAT/$filename.$FEAT"
-         echo $EXEC && $EXEC || exit 1
-     done
- }
-
-
+    db=$1
+    shift
+    for filename in $(sort $*); do
+        mkdir -p `dirname $w/$FEAT/$filename.$FEAT`
+        EXEC="wav2mfcc 20 30 8 $db/$filename.wav $w/$FEAT/$filename.$FEAT"
+        echo $EXEC && $EXEC || exit 1
+    done
+}
 
 
 #  Set the name of the feature (not needed for feature extraction itself)
@@ -134,6 +129,8 @@ elif [[ ! -n "$FEAT" ]]; then
     exit 1
 fi
 
+
+
 # ---------------------------------
 # Main program: 
 # For each cmd in command line ...
@@ -146,10 +143,10 @@ for cmd in $*; do
        ## @file
        # \TODO
        # Select (or change) good parameters for gmm_train
+       # \DONE: with optim_train.sh
        for dir in $db_devel/BLOCK*/SES* ; do
            name=${dir/*\/}
            echo $name ----
-           #EXEC="gmm_train -v 1 -T 0.001 -N 5 -m 1 -d $w/$FEAT -e $FEAT -g $w/gmm/$FEAT/$name.gmm $lists/class/$name.train"
            EXEC="gmm_train -v 1 $TRAIN_OPTS -d $w/$FEAT -e $FEAT -g $w/gmm/$FEAT/$name.gmm $lists/class/$name.train"
            echo $EXEC && $EXEC || exit 1
            echo
@@ -176,9 +173,9 @@ for cmd in $*; do
        # Implement 'trainworld' in order to get a Universal Background Model for speaker verification
        #
        # - The name of the world model will be used by gmm_verify in the 'verify' command below.
-       #echo "Implement the trainworld option ..."
-       #\DONE rule implemented
-        gmm_train  -v 1 $WORLD_OPTS -d $w/$FEAT -e $FEAT -g $w/gmm/$FEAT/$world.gmm $lists/verif/$world.train || exit 1
+       # \DONE
+       gmm_train  -v 1 $WORLD_OPTS -d $w/$FEAT -e $FEAT -g $w/gmm/$FEAT/$world.gmm $lists/verif/$world.train || exit 1
+
    elif [[ $cmd == verify ]]; then
        ## @file
        # \TODO 
@@ -188,7 +185,8 @@ for cmd in $*; do
        #   For instance:
        #   * <code> gmm_verify ... > $LOG_VERIF </code>
        #   * <code> gmm_verify ... | tee $LOG_VERIF </code>
-       echo "Implement the verify option ..."
+       # \DONE
+       gmm_verify -d $w/$FEAT -e $FEAT -D $w/gmm/$FEAT -E gmm -w $world lists/gmm.list lists/verif/all.test lists/verif/all.test.candidates | tee $w/verif_${FEAT}_${name_exp}.log
 
    elif [[ $cmd == verifyerr ]]; then
        if [[ ! -s $LOG_VERIF ]] ; then
@@ -208,7 +206,9 @@ for cmd in $*; do
        #
        # El fichero con el resultado del reconocimiento debe llamarse $FINAL_CLASS, que deberá estar en el
        # directorio de la práctica (PAV/P4).
-       echo "To be implemented ..."
+       #DONE
+        compute_$FEAT $db_final $lists/final/class.test
+       (gmm_classify -d $w/$FEAT -e $FEAT -D $w/gmm/$FEAT -E gmm $lists/gmm.list $lists/final/class.test | tee class_test.log) || exit 1
    
    elif [[ $cmd == finalverif ]]; then
        ## @file
@@ -227,7 +227,13 @@ for cmd in $*; do
        # candidato para la señal a verificar. En $FINAL_VERIF se pide que la tercera columna sea 1,
        # si se considera al candidato legítimo, o 0, si se considera impostor. Las instrucciones para
        # realizar este cambio de formato están en el enunciado de la práctica.
-       echo "To be implemented ..."
+       #DONE
+        compute_$FEAT $db_final $lists/final/verif.test
+       gmm_verify -d $w/$FEAT -e $FEAT -D $w/gmm/$FEAT -E gmm -w $world lists/final/verif.users lists/final/verif.test lists/final/verif.test.candidates | tee $w/verif_test.log
+        #$F[2]> canviar valor per minimitzar el cost (thd) optim (0.974854913166401)
+        perl -ane 'print "$F[0]\t$F[1]\t";
+            if ($F[2] > 0.392219510702497) {print "1\n"}
+            else {print "0\n"}' $w/verif_test.log | tee verif_test.log
    
    # If the command is not recognize, check if it is the name
    # of a feature and a compute_$FEAT function exists.

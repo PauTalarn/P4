@@ -91,10 +91,38 @@ def limsGMM(means, covs, fStd=3):
 
     return min_, max_
 
-def plotGMM(fileGMM, xDim, yDim, percents, colorGmm, filesFeat=None, colorFeat=None, limits=None, subplot=111):
+#def plotGMM(fileGMM, xDim, yDim, percents, colorGmm, filesFeat=None, colorFeat=None, limits=None, subplot=111):
+ #   weights, means, covs = read_gmm(fileGMM)
+
+def plotGMM(fileGMM, xDim, yDim, percents, colorGmm, filesFeat=None, colorFeat=None, limits=None):
     weights, means, covs = read_gmm(fileGMM)
 
-    ax = plt.subplot(subplot)
+    fig = plt.figure(figsize=(10, 10))
+
+    subplotting=[221,222,223,224]
+    for subplotting in subplotting:
+        
+        subplot=subplotting 
+        if subplotting==221:
+            colorGmm='red'
+            
+            
+        if subplotting==222:
+            colorGmm='red'
+            
+            
+        if subplotting==223:
+            colorGmm='blue'
+            
+
+        if subplotting==224:
+            colorGmm='blue'
+        
+        ax = fig.add_subplot(subplot)
+            
+    
+    #ax = plt.subplot(subplot)
+
     if filesFeat:
         feats = np.ndarray((0, 2))
         for fileFeat in filesFeat:
@@ -192,4 +220,9 @@ if __name__ == '__main__':
     else:
         limits = None
 
-    plotGMM(fileGMM, xDim, yDim, percents, colorGmm, filesFeat, colorFeat, limits, 111)
+    #plotGMM(fileGMM, xDim, yDim, percents, colorGmm, filesFeat, colorFeat, limits, 111)
+    plotGMM(fileGMM, xDim, yDim, percents, colorGmm, filesFeat, colorFeat, limits)
+
+
+
+    
