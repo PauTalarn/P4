@@ -98,6 +98,9 @@ nrow=`$X2X +fa < $base.lp | wc -l | perl -ne 'print $_/'$ncol', "\n";'`
 
 - Inserte una imagen mostrando la dependencia entre los coeficientes 2 y 3 de las tres parametrizaciones
   para todas las señales de un locutor.
+  ![Dependència coeficients 2 i 3: ](img/img_coef_lp.png)
+  ![Dependència coeficients 2 i 3: ](img/img_coef_lpcc.png)
+  ![Dependència coeficients 2 i 3: ](img/img_coef_mfcc.png)
 
   
   
@@ -105,25 +108,70 @@ nrow=`$X2X +fa < $base.lp | wc -l | perl -ne 'print $_/'$ncol', "\n";'`
     parametrizadas.
 
 
+    Per tal de representar les gràfiques primer de tot hem hagut de crear el codi de les funcions compute_lpcc i compute_mfcc.
+    Llavors hem modificat el *meson.build* de la carpeta scripts per tal de que ens crees l'objecte en la carpeta bin. Seguidament li hem donat permís d'execució a l'script. Al finalitzar repetides proves executant només l'ordre compute_$FEAT .... (on ... represeten els seus paràmetres corresponents) i asssegurant-nos del seu correcte funcionament. Executem: 
+    ```FEAT=lpcc run_spkid lpcc```
+    ```FEAT=mfcc run_spkid mfcc```
+    Seguidament hem copiat els coeficients 2 i 3 d'una sessió qualsevol com a columnes d'un fitxer guardat en una carpeta creada prèviament.
+    ```mkdir img```
+    ```fmatrix_show work/lp/BLOCK27/SES277/*.lp | egrep '^\[' | cut -f4,5 > img/graf_lp.txt```
+    ```fmatrix_show work/lpcc/BLOCK27/SES277/*.lpcc | egrep '^\[' | cut -f4,5 > img/graf_lpcc.txt```
+    ```fmatrix_show work/mfcc/BLOCK27/SES277/*.mfcc | egrep '^\[' | cut -f4,5 > img/graf_mfcc.txt```
+   
+    Finalment s'ha utilitzat *Matlab* per representar una gràfica de punts que ens mostra la relació entre els dos coeficients. Es mostra el codi per a la representació de la relació dels coeficients LP (els codis restants es troben a la carpeta /img).
+
+    <code>
+    data = load('graf_lp.txt');
+    x = data(:,1);
+    y = data(:,2);
+
+    sz = 10;
+    scatter(x, y, sz, 'MarkerEdgeColor',[0 .5 .5],...
+              'MarkerFaceColor',[0 .1 .7],...
+              'LineWidth',0.5);
+    grid on
+    xlabel('coef 2')
+    ylabel('coef 3')
+    title('LP')
+    hold on
+
+    hlines=line([0 0], ylim, 'Color', 'k', 'LineWidth', 0.5); 
+    vlines=line(xlim, [0 0], 'Color', 'k', 'LineWidth', 0.5); 
+    hold off
+
+    uistack(hlines, 'bottom');
+    uistack(vlines, 'bottom');
+    </code>
+
+
+
   + ¿Cuál de ellas le parece que contiene más información?
   Si observem les tres gràfiques una al costat de l'altre podem apreciar que la que representa els coeficients LP té una lleugera forma de recta. Aquest fet és significatiu, ja que ens indica que els coficients 2 i 3 son similars. Una similitud entre dos coeficient contigus ens aportarà menys informació sobre el locutor, és a dir, si el gràfic està més dispers tenim una major entropia que significa major informació. Els gràfics més dispersos són els LPCC i MFCC, no és fàcil decidir quin té més dispersió, possiblement la 'Representació LPCC'. 
+    Si observem les tres gràfiques una al costat de l'altre podem apreciar que la que representa els coeficients LP té una lleugera forma de recta. Aquest fet és significatiu, ja que ens indica que els coficients 2 i 3 son similars. Una similitud entre dos coeficient contigus ens aportarà menys informació sobre el locutor, és a dir, si el gràfic està més dispers tenim una major entropia que significa major informació. Els gràfics més dispersos són els LPCC i MFCC, no és fàcil decidir quin té més dispersió, possiblement la 'Representació LPCC'. 
 
 
 
 - Usando el programa <code>pearson</code>, obtenga los coeficientes de correlación normalizada entre los
   parámetros 2 y 3 para un locutor, y rellene la tabla siguiente con los valores obtenidos.
+
+  ```pearson work/lp/BLOCK27/SES277/*.lp``` 
+
+  ```pearson work/lpcc/BLOCK27/SES277/*.lpcc```
+
+  ```pearson work/mfcc/BLOCK27/SES277/*.mfcc```
   
 
 
 
   |                        | LP   | LPCC | MFCC |
   |------------------------|:----:|:----:|:----:|
-  | &rho;<sub>x</sub>[2,3] |     |      |      |
+  | &rho;<sub>x</sub>[2,3] |    -0.520272  |  0.257533    |   0.453983   |
   
   + Compare los resultados de <code>pearson</code> con los obtenidos gráficamente.
   
   
 - Según la teoría, ¿qué parámetros considera adecuados para el cálculo de los coeficientes LPCC y MFCC?
+La teoria ens diu que els coeficients de predicció adecuats son entre 8 i 14 coeficients de predicció. Els coeficients cepstrals aproximadament uns 3/2 dels coeficients de predicció. En quant els coeficients mfcc es consideren adecuats si es troben entre 14 i 20 i l'ordre del banc del filtres es situaria entre 30 i 40. A la pràctica tots aquests coeficients poden disminuir considerablament obtenint resultats igualment vàlids. 
 
 
 

@@ -1,5 +1,6 @@
 #! /usr/bin/env python3 -u
 
+
 import struct
 
 import matplotlib.pyplot as plt
@@ -91,69 +92,60 @@ def limsGMM(means, covs, fStd=3):
 
     return min_, max_
 
-#def plotGMM(fileGMM, xDim, yDim, percents, colorGmm, filesFeat=None, colorFeat=None, limits=None, subplot=111):
- #   weights, means, covs = read_gmm(fileGMM)
+def plotGMM2(fileGMM, xDim, yDim, percents, colorGmm, filesFeat=None, colorFeat=None, limits=None, subplot=111):
+        weights, means, covs = read_gmm(fileGMM)
 
-def plotGMM(fileGMM, xDim, yDim, percents, colorGmm, filesFeat=None, colorFeat=None, limits=None):
-    weights, means, covs = read_gmm(fileGMM)
+        
+        ax = plt.subplot(subplot)
+        if filesFeat:
+            feats = np.ndarray((0, 2))
+            for fileFeat in filesFeat:
+                feat = read_fmatrix(fileFeat)
+                feat = np.stack((feat[..., xDim], feat[..., yDim]), axis=-1)
+                feats = np.concatenate((feats, feat))
 
-    fig = plt.figure(figsize=(10, 10))
-    
-    ax = fig.add_subplot(subplot)
-            
-    
-    #ax = plt.subplot(subplot)
+            ax.scatter(feats[:, 0], feats[:, 1], .05, color=colorFeat)
 
-    if filesFeat:
-        feats = np.ndarray((0, 2))
-        for fileFeat in filesFeat:
-            feat = read_fmatrix(fileFeat)
-            feat = np.stack((feat[..., xDim], feat[..., yDim]), axis=-1)
-            feats = np.concatenate((feats, feat))
+        means = np.stack((means[..., xDim], means[..., yDim]), axis=-1)
+        covs = np.stack((covs[..., xDim], covs[..., yDim]), axis=-1)
 
-        ax.scatter(feats[:, 0], feats[:, 1], .05, color=colorFeat)
+        if not limits:
+            min_, max_ = limsGMM(means, covs)
+            limits = (min_[0], max_[0], min_[1], max_[1])
+        else:
+            min_, max_ = (limits[0], limits[2]), (limits[1], limits[3])
 
-    means = np.stack((means[..., xDim], means[..., yDim]), axis=-1)
-    covs = np.stack((covs[..., xDim], covs[..., yDim]), axis=-1)
+        # Fijamos el número de muestras de manera que el valor esperado de muestras
+        # en el percentil más estrecho sea 1000. Calculamos el más estrecho como el
+        # valor mínimo de p*(1-p)
 
-    if not limits:
-        min_, max_ = limsGMM(means, covs)
-        limits = (min_[0], max_[0], min_[1], max_[1])
-    else:
-        min_, max_ = (limits[0], limits[2]), (limits[1], limits[3])
+        numSmp = int(np.ceil(np.max(1000 / (percents * (1 - percents))) ** 0.5))
 
-    # Fijamos el número de muestras de manera que el valor esperado de muestras
-    # en el percentil más estrecho sea 1000. Calculamos el más estrecho como el
-    # valor mínimo de p*(1-p)
+        x = np.linspace(min_[0], max_[0], numSmp)
+        y = np.linspace(min_[1], max_[1], numSmp)
+        X, Y = np.meshgrid(x, y)
 
-    numSmp = int(np.ceil(np.max(1000 / (percents * (1 - percents))) ** 0.5))
+        XX = np.array([X.ravel(), Y.ravel()]).T
 
-    x = np.linspace(min_[0], max_[0], numSmp)
-    y = np.linspace(min_[1], max_[1], numSmp)
-    X, Y = np.meshgrid(x, y)
+        Z = pdfGMM(XX, weights, means, covs)
+        Z /= sum(Z)
+        Zsort = np.sort(Z)
+        Zacum = Zsort.cumsum()
+        levels = [Zsort[np.where(Zacum > 1 - percent)[0][0]] for percent in percents]
 
-    XX = np.array([X.ravel(), Y.ravel()]).T
+        Z = Z.reshape(X.shape)
 
-    Z = pdfGMM(XX, weights, means, covs)
-    Z /= sum(Z)
-    Zsort = np.sort(Z)
-    Zacum = Zsort.cumsum()
-    levels = [Zsort[np.where(Zacum > 1 - percent)[0][0]] for percent in percents]
+        style = {'colors': [colorGmm] * len(percents), 'linestyles': ['dotted', 'solid']}
 
-    Z = Z.reshape(X.shape)
+        CS = ax.contour(X, Y, Z, levels=levels, **style)
+        fmt = {levels[i]: f'{percents[i]:.0%}' for i in range(len(levels))}
+        ax.clabel(CS, inline=1, fontsize=14, fmt=fmt)
 
-    style = {'colors': [colorGmm] * len(percents), 'linestyles': ['dotted', 'solid']}
-
-    CS = ax.contour(X, Y, Z, levels=levels, **style)
-    fmt = {levels[i]: f'{percents[i]:.0%}' for i in range(len(levels))}
-    ax.clabel(CS, inline=1, fontsize=14, fmt=fmt)
-
-    plt.title(f'Region coverage predicted by {fileGMM}')
-    plt.axis('tight')
-    plt.axis(limits)
-
-    plt.show()
-
+        plt.title(f'Region coverage predicted by {fileGMM}')
+        plt.axis('tight')
+        plt.axis(limits)
+        
+        
 
 ########################################################################################################
 # Main Program
@@ -163,7 +155,7 @@ USAGE='''
 Draws the regions in space covered with a certain probability by a GMM.
 
 Usage:
-    plotGMM [--help|-h] [options] <file-gmm> [<file-feat>...]
+    plotGMM2 [--help|-h] [options] <file-gmm> <file-gmm2> [<file-feat>...]
 
 Options:
     --xDim INT, -x INT               'x' dimension to use from GMM and feature vectors [default: 0]
@@ -177,6 +169,7 @@ Options:
 
 Arguments:
     <file-gmm>    File with the Gaussian mixture model to be plotted
+    <file-gmm2>
     <file-fear>   Feature files to be plotted along the GMM
 '''
 
@@ -184,6 +177,7 @@ if __name__ == '__main__':
     args = docopt(USAGE)
 
     fileGMM = args['<file-gmm>']
+    fileGMM2 = args['<file-gmm2>']
     filesFeat = args['<file-feat>']
     xDim = int(args['--xDim'])
     yDim = int(args['--yDim'])
@@ -202,10 +196,9 @@ if __name__ == '__main__':
     else:
         limits = None
 
+    subplots =[221,222,223,224]
 
-    subplot =[221,222,223,224]
-    
-    for subplot in subplot:
+    for subplot in subplots:
         if subplot == 221:
             colorGmm = 'red'
             colorFeat = 'red'
@@ -215,20 +208,19 @@ if __name__ == '__main__':
             colorGmm = 'red'
             colorFeat = 'blue'
             plotGMM2(fileGMM, xDim, yDim, percents, colorGmm, filesFeat, colorFeat, limits,subplot)
-
         elif subplot==223:
+    
             colorGmm = 'blue'
             colorFeat = 'red'
             plotGMM2(fileGMM2, xDim, yDim, percents, colorGmm, filesFeat, colorFeat, limits,subplot)
-            
         elif subplot==224:
             colorGmm = 'blue'
             colorFeat = 'blue'
             plotGMM2(fileGMM2, xDim, yDim, percents, colorGmm, filesFeat, colorFeat, limits,subplot)
-        
-    plotGMM(fileGMM, xDim, yDim, percents, colorGmm, filesFeat, colorFeat, limits, subplot)
     
+    plt.show() 
 
+    plotGMM2(fileGMM2, xDim, yDim, percents, colorGmm, filesFeat, colorFeat, limits,subplot)
 
-
+        
     

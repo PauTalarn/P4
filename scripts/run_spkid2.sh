@@ -38,7 +38,7 @@ TEMP_VERIF=$w/temp_${FEAT}_${name_exp}.log
 
 #Parametros para entrenar GMM
 TO_init_method=1         #-i init\tInitialization method: 0=random, 1=VQ, 2=EM split (def. 0)   
-TO_LogProb_th_fin=1.e-6  #-T thr\tLogProbability threshold of final EM iterations (def. " << DEF_THR << ")
+TO_LogProb_th_fin=0.e-6  #-T thr\tLogProbability threshold of final EM iterations (def. " << DEF_THR << ")
 TO_Num_it_fin=60        #-N ite\tNumber of final iterations of EM (def. " << DEF_ITERATIONS << ")
 TO_nmix=20               #-m mix\tNumber of mixtures (def. " << DEF_NMIXTURES << ")
 

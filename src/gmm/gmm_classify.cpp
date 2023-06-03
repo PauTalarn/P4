@@ -21,7 +21,7 @@ int read_gmms(const Directory &dir, const Ext &ext, const vector<string> &gmm_fi
 
 int classify(const vector<GMM> &vgmm, const fmatrix &dat, float &maxlprob)
 {
-	float cur_lprob; //canvi de nom mes representatiu
+	float lprob; //canvi de nom mes representatiu
 	int maxind = -1;
 	maxlprob = -1e38;
 
@@ -30,15 +30,15 @@ int classify(const vector<GMM> &vgmm, const fmatrix &dat, float &maxlprob)
 	\DONE rule implemented
    */
 	
-	for (size_t i = 0; i < vgmm.size(); ++i)
-	{
-		cur_lprob = vgmm[i].logprob(dat);
-		if (cur_lprob > maxlprob)
-		{
-			maxlprob = cur_lprob;
-			maxind = static_cast<int>(i);
-		}
-	}
+	maxind = 0;
+
+  for(int i=0; i<vgmm.size();i++){
+    lprob=vgmm[i].logprob(dat);
+    if(lprob>maxlprob){
+      maxind=i;
+      maxlprob=lprob;
+    }
+  }
 
 	return maxind;
 }

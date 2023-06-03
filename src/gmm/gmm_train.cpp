@@ -58,7 +58,7 @@ int main(int argc, const char *argv[])
 
 	/**
 	\DONE rule implemented
-	De moment només tenim implementat inicialització random
+	Implementem tres mètodes:
    */
 
 	switch (init_method)
@@ -68,11 +68,10 @@ int main(int argc, const char *argv[])
 		break;
 	case 1:
 		gmm.vq_lbg(data, nmix, init_iterations, init_threshold, verbose);
-		break;
+		
 		break;
 	case 2:
 		gmm.em_split(data, nmix, init_iterations, init_threshold, verbose);
-		break;
 		break;
 	default:
 		gmm.random_init(data, nmix);
@@ -87,6 +86,7 @@ int main(int argc, const char *argv[])
 	el nom dels arguments a partir de les variables proporcionades per la funció read_params(),
 	 invocada amb anterioritat.
    */
+  
 	gmm.em(data, em_iterations, em_threshold, verbose);
 
 	// Create directory, if it is needed
