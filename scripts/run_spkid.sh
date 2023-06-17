@@ -36,10 +36,10 @@ FINAL_VERIF=$w/verif_test.log
 TEMP_VERIF=$w/temp_${FEAT}_${name_exp}.log
 
 #ULL; molt important, creem paràmetres per entrenar correctament la GMM
-TO_init_method=2         #-i init\tInitialization method: 0=random, 1=VQ, 2=EM split (default. 0)   
-TO_LogProb_th_fin=1.e-6  #-T thr\tLogProbability threshold of final EM iterations (def. " << DEF_THR << ")
-TO_Num_it_fin=60        #-N ite\tNumber of final iterations of EM (def. " << DEF_ITERATIONS << ")
-TO_nmix=20               #-m mix\tNumber of mixtures (def. " << DEF_NMIXTURES << ")
+TO_init_method=1         #-i init\tInitialization method: 0=random, 1=VQ, 2=EM split (default. 0)   
+TO_LogProb_th_fin=0.e-7  #-T thr\tLogProbability threshold of final EM iterations (def. " << DEF_THR << ")
+TO_Num_it_fin=80  #-N ite\tNumber of final iterations of EM (def. " << DEF_ITERATIONS << ")
+TO_nmix=30          #-m mix\tNumber of mixtures (def. " << DEF_NMIXTURES << ")
 
 #Ho guardem a train_options
 #Ens servirà línea 153 
@@ -116,6 +116,7 @@ compute_mfcc(){
      for filename in $(sort $*); do
          mkdir -p `dirname $w/$FEAT/$filename.$FEAT`
          EXEC="wav2mfcc 20 30 8 $db/$filename.wav $w/$FEAT/$filename.$FEAT"
+         #EXEC="wav2mfcc 20 30 8 $db/$filename.wav $w/$FEAT/$filename.$FEAT"
          echo $EXEC && $EXEC || exit 1
      done
  }
@@ -269,6 +270,9 @@ for cmd in $*; do
    fi
 done
 
+
 date
+
+(afplay /System/Library/Sounds/Glass.aiff &)
 
 exit 0

@@ -92,7 +92,7 @@ def limsGMM(means, covs, fStd=3):
 
     return min_, max_
 
-def plotGMM2(fileGMM, xDim, yDim, percents, colorGmm, filesFeat=None, colorFeat=None, limits=None, subplot=111):
+def plotGMM_edited(fileGMM, xDim, yDim, percents, colorGmm, filesFeat=None, colorFeat=None, limits=None, subplot=111):
         weights, means, covs = read_gmm(fileGMM)
 
         
@@ -155,7 +155,7 @@ USAGE='''
 Draws the regions in space covered with a certain probability by a GMM.
 
 Usage:
-    plotGMM2 [--help|-h] [options] <file-gmm> <file-gmm2> [<file-feat>...]
+    plotGMM_edited [--help|-h] [options] <file-gmm> <file-gmm2> [<file-feat>...] [<file-feat2>...] 
 
 Options:
     --xDim INT, -x INT               'x' dimension to use from GMM and feature vectors [default: 0]
@@ -170,15 +170,18 @@ Options:
 Arguments:
     <file-gmm>    File with the Gaussian mixture model to be plotted
     <file-gmm2>
-    <file-fear>   Feature files to be plotted along the GMM
+    <file-feat>   Feature files to be plotted along the GMM
+    <file-feat2>
 '''
 
 if __name__ == '__main__':
     args = docopt(USAGE)
 
     fileGMM = args['<file-gmm>']
-    fileGMM2 = args['<file-gmm2>']
     filesFeat = args['<file-feat>']
+    fileGMM2 = args['<file-gmm2>']
+    filesFeat2 = args['<file-feat2>']
+
     xDim = int(args['--xDim'])
     yDim = int(args['--yDim'])
     percents = args['--percents']
@@ -196,31 +199,43 @@ if __name__ == '__main__':
     else:
         limits = None
 
+    # Divide the variable arguments into two sets
+    num_feats = len(filesFeat)
+    filesFeat_set1 = filesFeat[:num_feats // 2]
+    filesFeat_set2 = filesFeat[num_feats // 2:]
+
     subplots =[221,222,223,224]
+
+    
 
     for subplot in subplots:
         if subplot == 221:
-            colorGmm = 'red'
-            colorFeat = 'red'
-            plotGMM2(fileGMM, xDim, yDim, percents, colorGmm, filesFeat, colorFeat, limits,subplot)
+            colorGmm = 'green'
+            colorFeat = 'green'
+    
+            plotGMM_edited(fileGMM, xDim, yDim, percents, colorGmm, filesFeat_set1, colorFeat, limits,subplot)
 
         elif subplot==222:
-            colorGmm = 'red'
-            colorFeat = 'blue'
-            plotGMM2(fileGMM, xDim, yDim, percents, colorGmm, filesFeat, colorFeat, limits,subplot)
-        elif subplot==223:
-    
             colorGmm = 'blue'
-            colorFeat = 'red'
-            plotGMM2(fileGMM2, xDim, yDim, percents, colorGmm, filesFeat, colorFeat, limits,subplot)
+            colorFeat = 'green'
+
+            plotGMM_edited(fileGMM2, xDim, yDim, percents, colorGmm, filesFeat_set1, colorFeat, limits,subplot)
+
+        elif subplot==223:
+            colorGmm = 'green'
+            colorFeat = 'blue'
+    
+            plotGMM_edited(fileGMM, xDim, yDim, percents, colorGmm, filesFeat_set2, colorFeat, limits,subplot)
+
         elif subplot==224:
             colorGmm = 'blue'
             colorFeat = 'blue'
-            plotGMM2(fileGMM2, xDim, yDim, percents, colorGmm, filesFeat, colorFeat, limits,subplot)
+            
+            plotGMM_edited(fileGMM2, xDim, yDim, percents, colorGmm, filesFeat_set2, colorFeat, limits,subplot)
     
     plt.show() 
 
-    plotGMM2(fileGMM2, xDim, yDim, percents, colorGmm, filesFeat, colorFeat, limits,subplot)
+
 
         
     

@@ -100,7 +100,7 @@ nrow=`$X2X +fa < $base.lp | wc -l | perl -ne 'print $_/'$ncol', "\n";'`
   para todas las señales de un locutor.
   ![Dependència coeficients 2 i 3: ](img/img_coef_lp.png)
   ![Dependència coeficients 2 i 3: ](img/img_coef_lpcc.png)
-  ![Dependència coeficients 2 i 3: ](img/img_coef_mfcc.png)
+  ![Dependència coeficients 2 i 3: ](img/img_coef_mfcc2.png)
 
   
   
@@ -111,11 +111,15 @@ nrow=`$X2X +fa < $base.lp | wc -l | perl -ne 'print $_/'$ncol', "\n";'`
     Per tal de representar les gràfiques primer de tot hem hagut de crear el codi de les funcions compute_lpcc i compute_mfcc.
     Llavors hem modificat el *meson.build* de la carpeta scripts per tal de que ens crees l'objecte en la carpeta bin. Seguidament li hem donat permís d'execució a l'script. Al finalitzar repetides proves executant només l'ordre compute_$FEAT .... (on ... represeten els seus paràmetres corresponents) i asssegurant-nos del seu correcte funcionament. Executem: 
     ```FEAT=lpcc run_spkid lpcc```
+
     ```FEAT=mfcc run_spkid mfcc```
     Seguidament hem copiat els coeficients 2 i 3 d'una sessió qualsevol com a columnes d'un fitxer guardat en una carpeta creada prèviament.
     ```mkdir img```
+
     ```fmatrix_show work/lp/BLOCK27/SES277/*.lp | egrep '^\[' | cut -f4,5 > img/graf_lp.txt```
+
     ```fmatrix_show work/lpcc/BLOCK27/SES277/*.lpcc | egrep '^\[' | cut -f4,5 > img/graf_lpcc.txt```
+
     ```fmatrix_show work/mfcc/BLOCK27/SES277/*.mfcc | egrep '^\[' | cut -f4,5 > img/graf_mfcc.txt```
    
     Finalment s'ha utilitzat *Matlab* per representar una gràfica de punts que ens mostra la relació entre els dos coeficients. Es mostra el codi per a la representació de la relació dels coeficients LP (els codis restants es troben a la carpeta /img).
@@ -165,10 +169,10 @@ nrow=`$X2X +fa < $base.lp | wc -l | perl -ne 'print $_/'$ncol', "\n";'`
 
   |                        | LP   | LPCC | MFCC |
   |------------------------|:----:|:----:|:----:|
-  | &rho;<sub>x</sub>[2,3] |    -0.520272  |  0.257533    |   0.453983   |
+  | &rho;<sub>x</sub>[2,3] |    -0.520272  |  0.257533    |   0.271618   |
   
   + Compare los resultados de <code>pearson</code> con los obtenidos gráficamente.
-  
+  Els resultats es corresponen amb les gràfiques obtingudes. Una rho[2,3] alta vol dir que els coeficients estan molt correlats, quan més baix sigui aquest valor més incorrelats. Observem que la menor correlació és la LPCC, seguida de la MFCC i la LP. 
   
 - Según la teoría, ¿qué parámetros considera adecuados para el cálculo de los coeficientes LPCC y MFCC?
 La teoria ens diu que els coeficients de predicció adecuats son entre 8 i 14 coeficients de predicció. Els coeficients cepstrals aproximadament uns 3/2 dels coeficients de predicció. En quant els coeficients mfcc es consideren adecuats si es troben entre 14 i 20 i l'ordre del banc del filtres es situaria entre 30 i 40. A la pràctica tots aquests coeficients poden disminuir considerablament obtenint resultats igualment vàlids. 
@@ -181,10 +185,16 @@ Complete el código necesario para entrenar modelos GMM.
 
 - Inserte una gráfica que muestre la función de densidad de probabilidad modelada por el GMM de un locutor
   para sus dos primeros coeficientes de MFCC.
+  ![](img/pdfGMM.png)
 
 - Inserte una gráfica que permita comparar los modelos y poblaciones de dos locutores distintos (la gŕafica
   de la página 20 del enunciado puede servirle de referencia del resultado deseado). Analice la capacidad
   del modelado GMM para diferenciar las señales de uno y otro.
+  En aquest gràfic es comparen dos models poblacionals diferents. Els models es representen mitjançant regions a l'espai, on cada regió mostra les prediccions de cada model. Les regions que estan colorejades només amb verd o blau representen les àrees on tots dos models coincideixen. D'altra banda, les regions que estan colorejades amb colors no coincidents és on es destaquen les diferències entre els models. 
+
+   ![](img/subploting.png)
+
+  
 
 ### Reconocimiento del locutor.
 
