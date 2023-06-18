@@ -39,7 +39,7 @@ TEMP_VERIF=$w/temp_${FEAT}_${name_exp}.log
 TO_init_method=1         #-i init\tInitialization method: 0=random, 1=VQ, 2=EM split (default. 0)   
 TO_LogProb_th_fin=0.e-7  #-T thr\tLogProbability threshold of final EM iterations (def. " << DEF_THR << ")
 TO_Num_it_fin=25  #-N ite\tNumber of final iterations of EM (def. " << DEF_ITERATIONS << ") (25)
-TO_nmix=40      #-m mix\tNumber of mixtures (def. " << DEF_NMIXTURES << ") (40)
+TO_nmix=39    #-m mix\tNumber of mixtures (def. " << DEF_NMIXTURES << ") (40)
 
 #Ho guardem a train_options
 #Ens servirà línea 153 
@@ -252,7 +252,7 @@ for cmd in $*; do
        EXEC="gmm_verify -d work/$FEAT/ -e $FEAT -D work/gmm/$FEAT/ -E gmm -w $world lists/gmm.list lists/final/verif.test lists/final/verif.test.candidates"
        echo $EXEC && $EXEC | tee $TEMP_VERIF || exit 1
        perl -ane 'print "$F[0]\t$F[1]\t";
-        if ($F[2] > -0.149747883263198) {print "1\n"}
+        if ($F[2] > -0.0951162845216033) {print "1\n"}
         else {print "0\n"}' $TEMP_VERIF > $FINAL_VERIF
        
 

@@ -217,7 +217,7 @@ Complete el código necesario para realizar reconociminto del locutor y optimice
 
      |                        | LP   | LPCC | MFCC |
   |------------------------|:----:|:----:|:----:|
-  | tasa error |    8.15%	  | 0.25%    |  	0.89%   |
+  | tasa error |    8.15%	  | 0.38%    |  	0.89%   |
 
   >Podem observar que obtenim els millors resutats de cost d'error amb el LPCC. 
 
@@ -233,14 +233,14 @@ Complete el código necesario para realizar verificación del locutor y optimice
 
 |                        | LP   | LPCC | MFCC |
   |------------------------|:----:|:----:|:----:|
-  | missed |    77/250  |  2/250    |   19/250   |
-  | flase alarm |   5/1000 | 7/1000    |   3/1000   |
-  | Cost Detection|    48.8  |  5.3    |   10.3   |
-  | Threshold |    0.673255639909199 |  -0.149747883263198    |   0.593483750637495   |
+  | missed |    77/250  |  4/250    |   19/250   |
+  | flase alarm |   5/1000 | 3/1000    |   3/1000   |
+  | Cost Detection|    48.8  |  4.3    |   10.3   |
+  | Threshold |    0.673255639909199 |  -0.0951162845216033    |   0.593483750637495   |
   
   >Com podem observar el valor més petit ens surt amb el sistema lpcc és el què ens dona una tasa de error i un cost detection més baix. Per assolir aquests valors a LPCC s'ha utilitzat els paràmetres següents:
 
-    1. Nº of Mixtures: 40
+    1. Nº of Mixtures: 39
     2. Nº max iterations: 25
     3. Ordre LPC: 30
     4. Cepstrals coeficients: 29
@@ -256,7 +256,7 @@ Complete el código necesario para realizar verificación del locutor y optimice
    FEAT=lpcc run_spkid finalverif
    ```
 
-  >Obtenim els fitxers demanats adjuntats dins la pràctica
+  >Obtenim els fitxers demanats adjuntats dins la pràctica.
 
 ### Trabajo de ampliación.
 
