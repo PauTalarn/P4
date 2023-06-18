@@ -205,7 +205,7 @@ Complete el código necesario para entrenar modelos GMM.
 
    ![](img/subploting.png)
 
-  
+  >Per tal de poder generar aqeuestes gràfiqeus s'ha modificat el codi plot_gmm per tald 'obtenir els resultats desitjats. En aquest cas el nom que ha rebut és prova.py i, igualment, es pot trobar dins la carpeta d'scripts.
 
 ### Reconocimiento del locutor.
 
@@ -233,17 +233,30 @@ Complete el código necesario para realizar verificación del locutor y optimice
 
 |                        | LP   | LPCC | MFCC |
   |------------------------|:----:|:----:|:----:|
-  | missed |    77/250  |  14/250    |   19/250   |
-  | flase alarm |   20/1000 | 7/1000    |   3/1000   |
-  | Cost Detection|    48.8  |  11.9    |   10.3   |
-  | Threshold |    0.673255639909199 |  0.129515235098698    |   0.593483750637495   |
+  | missed |    77/250  |  2/250    |   19/250   |
+  | flase alarm |   5/1000 | 7/1000    |   3/1000   |
+  | Cost Detection|    48.8  |  5.3    |   10.3   |
+  | Threshold |    0.673255639909199 |  -0.149747883263198    |   0.593483750637495   |
   
-  >Com podem observar el valor més petit ens surt amb el sistema lpcc és el què ens dona una tasa de error i un cost detection més baix
+  >Com podem observar el valor més petit ens surt amb el sistema lpcc és el què ens dona una tasa de error i un cost detection més baix. Per assolir aquests valors a LPCC s'ha utilitzat els paràmetres següents:
+
+    1. Nº of Mixtures: 40
+    2. Nº max iterations: 25
+    3. Ordre LPC: 30
+    4. Cepstrals coeficients: 29
  
 ### Test final
 
 - Adjunte, en el repositorio de la práctica, los ficheros `class_test.log` y `verif_test.log` 
   correspondientes a la evaluación *ciega* final.
+
+  >Al realitzar:
+   ```bash
+   FEAT=lpcc run_spkid finalclass 
+   FEAT=lpcc run_spkid finalverif
+   ```
+
+  >Obtenim els fitxers demanats adjuntats dins la pràctica
 
 ### Trabajo de ampliación.
 
